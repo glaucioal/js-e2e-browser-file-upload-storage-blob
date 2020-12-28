@@ -5,9 +5,9 @@
 import { BlobServiceClient, ContainerClient} from '@azure/storage-blob';
 
 // THIS IS SAMPLE CODE ONLY - DON'T STORE TOKEN IN PRODUCTION CODE
-const sasToken = process.env.storagesastoken || ""; // Fill string with your SAS token
+const sasToken = process.env.storagesastoken || "sv=2019-12-12&ss=b&srt=sco&sp=rwdlacx&se=2020-12-29T02:22:54Z&st=2020-12-28T18:22:54Z&spr=https&sig=QTdZir4TF1YLWWDEc4TaL7hXfHsbo3czQfTZ2Y8iE%2Bo%3D"; // Fill string with your SAS token
 const containerName = `tutorial-container`;
-const storageAccountName = process.env.storageresourcename || ""; // Fill string with your Storage resource name
+const storageAccountName = process.env.storageresourcename || "fileuploadglaucio"; // Fill string with your Storage resource name
 // </snippet_package>
 
 // <snippet_isStorageConfigured>
@@ -49,10 +49,7 @@ const createBlobInContainer = async (containerClient: ContainerClient, file: Fil
 }
 // </snippet_createBlobInContainer>
 
-// <snippet_uploadFileToBlob>
-const uploadFileToBlob = async (file: File | null): Promise<string[]> => {
-  if (!file) return [];
-
+const createContainer = async (): Promise<ContainerClient> => {
   // get BlobService = notice `?` is pulled out of sasToken - if created in Azure portal
   const blobService = new BlobServiceClient(
     `https://${storageAccountName}.blob.core.windows.net/?${sasToken}`
@@ -64,11 +61,28 @@ const uploadFileToBlob = async (file: File | null): Promise<string[]> => {
     access: 'container',
   });
 
+  return containerClient;
+};
+
+// <snippet_uploadFileToBlob>
+const uploadFileToBlob = async (file: File | null): Promise<string[]> => {
+  if (!file) return [];
+
+  const containerClient: ContainerClient = await createContainer();
+
   // upload file
   await createBlobInContainer(containerClient, file);
 
   // get list of blobs in container
   return getBlobsInContainer(containerClient);
+};
+
+export const getListOfFiles = async (): Promise<string[]> => {
+
+  const containerClient: ContainerClient = await createContainer();
+
+  return getBlobsInContainer(containerClient);
+
 };
 // </snippet_uploadFileToBlob>
 

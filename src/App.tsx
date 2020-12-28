@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Path from 'path';
-import uploadFileToBlob, { isStorageConfigured } from './azure-storage-blob';
+import uploadFileToBlob, { isStorageConfigured, getListOfFiles } from './azure-storage-blob';
 
 const storageConfigured = isStorageConfigured();
 
@@ -67,6 +67,10 @@ const App = (): JSX.Element => {
       </ul>
     </div>
   );
+
+  getListOfFiles().then(files=>{
+    setBlobList(files);
+  });
 
   return (
     <div>
